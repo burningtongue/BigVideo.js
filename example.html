@@ -13,7 +13,8 @@
 </head>
 
 <body>
-    <!-- BigVideo Dependencies -->    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/modernizr/modernizr-2.5.3.min.js"></script></script>
+    <!-- BigVideo Dependencies -->   
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/modernizr/modernizr-2.5.3.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"><\/script>')</script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/PreloadJS/0.3.1/preloadjs.min.js"></script>
@@ -23,7 +24,7 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-backstretch/2.0.4/jquery.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/3.0.4/jquery.imagesloaded.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
-<script type="text/javascript" src="https://raw.githubusercontent.com/burningtongue/imagesloaded/master/imagesloaded.js"></script></script>
+<script type="text/javascript" src="https://raw.githubusercontent.com/burningtongue/imagesloaded/master/imagesloaded.js"></script>
     <!-- BigVideo -->
     <script type="text/javascript" src="https://raw.githubusercontent.com/burningtongue/BigVideo.js/master/lib/bigvideo.js"></script>
 
@@ -53,6 +54,71 @@
                 { type: "video/ogg",  src: "http://vjs.zencdn.net/v/river.ogv" }
             ]);
 	    });
+    </script>
+    <!-- Demo -->
+    <script>
+        $(function() {
+
+            // Use Modernizr to detect for touch devices, 
+            // then serve them alternate background image content
+            var isTouch = Modernizr.touch;
+            
+            // vars for auto hiding
+            var isShowingPlaylist = false;
+            var isHidden = false;
+            var autoHideTimer;
+            var $showContentButton = $('<div class="touchscreen-show-button box">Back</div>')
+            
+            // initialize BigVideo
+            var BV = new $.BigVideo({forceAutoplay:isTouch});
+            BV.init();
+            // show background image
+            BV.show('img/background-dock.jpg');
+
+            // Playlist button click starts video, enables autohiding
+            $('.playlist-btn').on('click', function(e) {
+                e.preventDefault();
+                BV.show($(this).attr('href'));
+                autoHide(true);
+                isShowingPlaylist = true;
+            })
+
+            // Turn off autohiding when mouse is over the nav 
+            // (not necessary for touchscreens)
+            if (!isTouch) {
+                $('.nav')
+                    .on('mouseover', function() {
+                        if (isShowingPlaylist) autoHide(false);
+                    })
+                    .on('mouseout', function() {
+                        if (isShowingPlaylist) autoHide(true);
+                    });
+            } else {
+                // add button to show content on touchscreen
+                $('body').prepend($showContentButton);
+            }
+
+            function autoHide(enable) {
+                if (enable) {
+                    isHidden = true;
+                    $('body').on('mousemove', function(event){
+                        if (isHidden) {
+                            isHidden = false;
+                            $('.nav, .main').removeClass('transparent');
+                        }
+                        clearTimeout(autoHideTimer);
+                        autoHideTimer = setTimeout(function() {
+                            isHidden = true;
+                            $('.nav, .main').addClass('transparent');
+                        }, 1000);
+                    });    
+                } else {
+                    clearTimeout(autoHideTimer);
+                    $('body').off('mousemove');
+                    $('.nav, .main').removeClass('transparent');
+                }
+            }
+        });
     </script>
 </body>
 </html>
